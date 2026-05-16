@@ -139,4 +139,171 @@ public class StudentService {
 
     return response;
   }
+
+
+  public ApplicationResponseDto getAllStudents() {
+
+    ApplicationResponseDto response =
+      new ApplicationResponseDto();
+
+    response.setStatusCode(200);
+    response.setMessage("All students fetched");
+    response.setData(studentRepository.findAll());
+
+    return response;
+  }
+  public ApplicationResponseDto getStudentsByDriverId(Long driverId) {
+
+    Driver driver = driverRepository.findById(driverId)
+      .orElseThrow(() ->
+        new RuntimeException("Driver not found"));
+
+    ApplicationResponseDto response =
+      new ApplicationResponseDto();
+
+    response.setStatusCode(200);
+    response.setMessage("Students fetched successfully");
+    response.setData(
+      studentRepository.findByDriver(driver));
+
+    return response;
+  }
+  public ApplicationResponseDto getStudentById(Long studentId) {
+
+    Student student = studentRepository.findById(studentId)
+      .orElseThrow(() ->
+        new RuntimeException("Student not found"));
+
+    ApplicationResponseDto response =
+      new ApplicationResponseDto();
+
+    response.setStatusCode(200);
+    response.setMessage("Student fetched successfully");
+    response.setData(student);
+
+    return response;
+  }
+
+  public ApplicationResponseDto getStudentByDriverAndStudentId(
+    Long driverId,
+    Long studentId) {
+
+    Student student =
+      studentRepository
+        .findByIdAndDriverId(
+          studentId,
+          driverId)
+        .orElseThrow(() ->
+          new RuntimeException(
+            "Student not found"));
+
+    ApplicationResponseDto response =
+      new ApplicationResponseDto();
+
+    response.setStatusCode(200);
+    response.setMessage("Student fetched successfully");
+    response.setData(student);
+
+    return response;
+  }
+
+  @Transactional
+  public ApplicationResponseDto deleteStudent(
+    Long driverId,
+    Long studentId) {
+
+    Student student =
+      studentRepository
+        .findByIdAndDriverId(
+          studentId,
+          driverId)
+        .orElseThrow(() ->
+          new RuntimeException(
+            "Student not found"));
+
+    studentRepository.delete(student);
+
+    ApplicationResponseDto response =
+      new ApplicationResponseDto();
+
+    response.setStatusCode(200);
+    response.setMessage(
+      "Student deleted successfully");
+
+    return response;
+  }
+
+  @Transactional
+  public ApplicationResponseDto updateStudent(
+    Long studentId,
+    Studentdto dto) {
+
+    Student student =
+      studentRepository.findById(studentId)
+        .orElseThrow(() ->
+          new RuntimeException(
+            "Student not found"));
+
+    if(dto.getStudentName() != null) {
+      student.setName(dto.getStudentName());
+    }
+
+    if(dto.getSchoolName() != null) {
+      student.setSchoolName(dto.getSchoolName());
+    }
+
+    if(dto.getAddress() != null) {
+      student.setAddress(dto.getAddress());
+    }
+
+    if(dto.getPickupLat() != null) {
+      student.setPickupLat(dto.getPickupLat());
+    }
+
+    if(dto.getPickupLng() != null) {
+      student.setPickupLng(dto.getPickupLng());
+    }
+
+    if(dto.getPickupTime() != null) {
+      student.setPickupTime(dto.getPickupTime());
+    }
+
+    if(dto.getDropTime() != null) {
+      student.setDropTime(dto.getDropTime());
+    }
+
+    if(dto.getMonthlyFees() != null) {
+      student.setMonthlyFees(dto.getMonthlyFees());
+    }
+
+    if(dto.getVehicleSeatNo() != null) {
+      student.setVehicleSeatNo(
+        dto.getVehicleSeatNo());
+    }
+
+    // update image
+    if(dto.getImage() != null &&
+      !dto.getImage().isEmpty()) {
+
+      Multimedia media =
+        multimediaService
+          .uploadFile(dto.getImage());
+
+      student.setImage(media);
+    }
+
+    Student updatedStudent =
+      studentRepository.save(student);
+
+    ApplicationResponseDto response =
+      new ApplicationResponseDto();
+
+    response.setStatusCode(200);
+    response.setMessage(
+      "Student updated successfully");
+    response.setData(updatedStudent);
+
+    return response;
+  }
+
 }
